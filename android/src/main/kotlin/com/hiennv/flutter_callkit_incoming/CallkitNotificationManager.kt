@@ -385,19 +385,19 @@ class CallkitNotificationManager(private val context: Context) {
 
             getNotificationManager().createNotificationChannel(channelCall)
 
-            val channelMissedCall = NotificationChannel(
-                    NOTIFICATION_CHANNEL_ID_MISSED,
-                    missedCallChannelName,
-                    NotificationManager.IMPORTANCE_DEFAULT
-            ).apply {
-                description = ""
-                vibrationPattern = longArrayOf(0, 1000)
-                lightColor = Color.RED
-                enableLights(true)
-                enableVibration(true)
-            }
-            channelMissedCall.importance = NotificationManager.IMPORTANCE_DEFAULT
-            getNotificationManager().createNotificationChannel(channelMissedCall)
+//            val channelMissedCall = NotificationChannel(
+//                    NOTIFICATION_CHANNEL_ID_MISSED,
+//                    missedCallChannelName,
+//                    NotificationManager.IMPORTANCE_DEFAULT
+//            ).apply {
+//                description = ""
+//                vibrationPattern = longArrayOf(0, 1000)
+//                lightColor = Color.RED
+//                enableLights(true)
+//                enableVibration(true)
+//            }
+//            channelMissedCall.importance = NotificationManager.IMPORTANCE_DEFAULT
+//            getNotificationManager().createNotificationChannel(channelMissedCall)
         }
     }
 
