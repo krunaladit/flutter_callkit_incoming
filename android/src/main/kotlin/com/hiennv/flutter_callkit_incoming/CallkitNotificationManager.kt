@@ -318,6 +318,7 @@ class CallkitNotificationManager(private val context: Context) {
         }
 
         val notification = notificationBuilder.build()
+        notification.flags = Notification.FLAG_NO_CLEAR;
         getNotificationManager().notify(notificationId, notification)
         Handler(Looper.getMainLooper()).postDelayed({
             try {
@@ -380,7 +381,6 @@ class CallkitNotificationManager(private val context: Context) {
                 }
             }
             channelCall.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-
             channelCall.importance = NotificationManager.IMPORTANCE_HIGH
 
             getNotificationManager().createNotificationChannel(channelCall)
