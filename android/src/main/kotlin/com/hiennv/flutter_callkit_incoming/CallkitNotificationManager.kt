@@ -184,6 +184,7 @@ class CallkitNotificationManager(private val context: Context) {
         }
         val notification = notificationBuilder.build()
         notification.flags = Notification.FLAG_INSISTENT
+        notification.flags = Notification.FLAG_NO_CLEAR;
         getNotificationManager().notify(notificationId, notification)
     }
 
@@ -318,7 +319,7 @@ class CallkitNotificationManager(private val context: Context) {
         }
 
         val notification = notificationBuilder.build()
-        notification.flags = Notification.FLAG_NO_CLEAR;
+        //notification.flags = Notification.FLAG_NO_CLEAR;
         getNotificationManager().notify(notificationId, notification)
         Handler(Looper.getMainLooper()).postDelayed({
             try {
