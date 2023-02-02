@@ -88,7 +88,7 @@ public class Call: NSObject {
         return Date().timeIntervalSince(connectDate)
     }
     
-    init(uuid: String, data: Data, isOutGoing: Bool = false){
+    init(uuid: UUID, data: Data, isOutGoing: Bool = false){
         self.uuid = uuid
         self.data = data
         self.isOutGoing = isOutGoing
