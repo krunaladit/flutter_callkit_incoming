@@ -22,6 +22,7 @@ enum Event {
   ACTION_CALL_TOGGLE_DMTF,
   ACTION_CALL_TOGGLE_GROUP,
   ACTION_CALL_TOGGLE_AUDIO_SESSION,
+  ACTION_CUSTOM_EVENT
 }
 
 /// Using extension for backward compatibility Dart SDK 2.17.0 and lower
@@ -54,6 +55,8 @@ extension EventX on Event {
         return 'com.hiennv.flutter_callkit_incoming.ACTION_CALL_TOGGLE_GROUP';
       case Event.ACTION_CALL_TOGGLE_AUDIO_SESSION:
         return 'com.hiennv.flutter_callkit_incoming.ACTION_CALL_TOGGLE_AUDIO_SESSION';
+      case Event.ACTION_CUSTOM_EVENT:
+        return 'com.hiennv.flutter_callkit_incoming.ACTION_CUSTOM_EVENT';
     }
   }
 }
