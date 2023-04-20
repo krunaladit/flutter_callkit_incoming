@@ -38,7 +38,8 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
     private var data: Data?
     private var isFromPushKit: Bool = false
     private let devicePushTokenVoIP = "DevicePushTokenVoIP"
-    
+    private var pbxCall :Call?
+
     private func sendEvent(_ event: String, _ body: [String : Any?]?) {
         eventCallbackHandler?.send(event, body ?? [:] as [String : Any?])
     }
@@ -381,7 +382,9 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_START, self.data?.toJSON())
         action.fulfill()
     }
-    
+     public func  outGoingConnected(){
+             self.sharedProvider?.reportOutgoingCall(with: pbxCall!.uuid, connectedAt:Date())
+        }
     public func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
         guard let call = self.callManager?.callWithUUID(uuid: action.callUUID) else{
             action.fail()
