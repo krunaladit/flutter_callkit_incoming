@@ -464,7 +464,9 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         action.fulfill()
     }
      public func  outGoingConnected(){
-             self.sharedProvider?.reportOutgoingCall(with: pbxCall!.uuid, connectedAt:Date())
+     if(self.outgoingCall != nil){
+       self.sharedProvider?.reportOutgoingCall(with: self.outgoingCall.uuid, connectedAt:Date())
+     }
         }
     public func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
         guard let call = self.callManager.callWithUUID(uuid: action.callUUID) else{
