@@ -464,7 +464,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         action.fulfill()
     }
      public func  outGoingConnected(){
-     if(self.outgoingCall != nil){
+     if(self.outgoingCall?.uuid != nil){
        self.sharedProvider?.reportOutgoingCall(with: self.outgoingCall.uuid, connectedAt:Date())
      }
         }
