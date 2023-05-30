@@ -170,18 +170,23 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
             result(self.getDevicePushTokenVoIP())
             break;
         case "customEvent":
-            guard let args = call.arguments as? [String: Any] ,
-                  let callId = args["id"] as? String,
-
-                 result(self.getCustomEvent(callId))
+        
+            let args = call.arguments as? [String: Any]
+            if(args != nil){
+                let callId = args?["id"] as? String
+                            let eventType = args?["eventType"] as? String
+                self.getCustomEvent(eventType!,callId!)
+                            result("OK")
+            }
+            
                  break
 
         default:
             result(FlutterMethodNotImplemented)
         }
     }
-      @objc public func getCustomEvent(_ callId: String) -> String {
-            self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CUSTOM_EVENT, ["id": callId])
+      @objc public func getCustomEvent(_ eventType: String,_ callId: String){
+            self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CUSTOM_EVENT, ["id": callId,"eventType":eventType])
         }
     @objc public func setDevicePushTokenVoIP(_ deviceToken: String) {
         UserDefaults.standard.set(deviceToken, forKey: devicePushTokenVoIP)
