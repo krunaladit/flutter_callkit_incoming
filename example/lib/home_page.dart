@@ -43,6 +43,13 @@ class HomePageState extends State<HomePage> {
           IconButton(
             icon: Icon(
               Icons.call,
+              color: Colors.red,
+            ),
+            onPressed: sendCustomEvent,
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.call,
               color: Colors.white,
             ),
             onPressed: makeFakeCallInComing,
@@ -111,6 +118,11 @@ class HomePageState extends State<HomePage> {
         return null;
       }
     }
+  }
+  Future<void> sendCustomEvent()async {
+    String uuid;
+    uuid= _uuid.v4();
+    FlutterCallkitIncoming.getCustomEvent("eventTypeCustom", uuid);
   }
 
   Future<void> makeFakeCallInComing() async {
