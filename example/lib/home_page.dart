@@ -114,6 +114,8 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> makeFakeCallInComing() async {
+    //FlutterCallkitIncoming.sendRegistrationStatus("REGISTERED");
+
     await Future.delayed(const Duration(seconds: 10), () async {
       _currentUuid = _uuid.v4();
 

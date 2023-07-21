@@ -38,6 +38,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
     private var isFromPushKit: Bool = false
     private let devicePushTokenVoIP = "DevicePushTokenVoIP"
     private var pbxCall :Call?
+    private var registrationStatus : String? = ""
 
     private func sendEvent(_ event: String, _ body: [String : Any?]?) {
         streamHandlers.reap().forEach { handler in
@@ -169,7 +170,12 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         case "getDevicePushTokenVoIP":
             result(self.getDevicePushTokenVoIP())
             break;
-
+        case "sendRegisterStatus":
+         let args = call.arguments as? [String: Any]
+            registrationStatus = (args!["status"] as? String)
+            print(registrationStatus!)
+            result("OK")
+            break;
         default:
             result(FlutterMethodNotImplemented)
         }
@@ -479,15 +485,20 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         call.hasConnectDidChange = { [weak self] in
             self?.sharedProvider?.reportOutgoingCall(with: call.uuid, connectedAt: call.connectedData)
         }
-
         self.answerCall = call
-                 DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(3000)) {
-                            self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
-                            action.fulfill()
-                        }
-//         self.answerCall = call
-//         sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
-//         action.fulfill()
+        if(self.registrationStatus != "REGISTERED") {
+        
+                     DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(3000)) {
+                                self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
+                                action.fulfill()
+                            }
+        }else{
+                    
+                     sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
+                     action.fulfill()
+        }
+        
+
     }
     
 
