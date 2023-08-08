@@ -487,13 +487,12 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         }
         self.answerCall = call
         if(self.registrationStatus != "REGISTERED") {
-            if (UIApplication.shared.applicationState == UIApplication.State.inactive) {
-                print("Kill stage");
+
                 DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(3000)) {
                                                 self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
                                                 action.fulfill()
                                             }
-            }
+
         }else{
                     
                      sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
