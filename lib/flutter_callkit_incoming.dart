@@ -103,7 +103,7 @@ class FlutterCallkitIncoming {
   /// Get active calls.
   /// On iOS: return active calls from Callkit.
   /// On Android: only return last call
-  static Future sendCallConnected(bool anyCallConnected) async {
+  static Future sendAnyCallConnected(bool anyCallConnected) async {
     return await _channel.invokeMethod("sendAnyCallConnected", {'anyCallConnected':anyCallConnected});
   }
 
