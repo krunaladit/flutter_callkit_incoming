@@ -39,7 +39,8 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
     private let devicePushTokenVoIP = "DevicePushTokenVoIP"
     private var pbxCall :Call?
     private var registrationStatus : String? = ""
-
+    private var anyCallConnected: Bool? = false
+    
     private func sendEvent(_ event: String, _ body: [String : Any?]?) {
         streamHandlers.reap().forEach { handler in
             handler?.send(event, body ?? [:])
@@ -174,6 +175,16 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
          let args = call.arguments as? [String: Any]
             registrationStatus = (args!["status"] as? String)
             print(registrationStatus!)
+            result("OK")
+            break;
+        case "sendAnyCallConnected":
+         guard let args = call.arguments as? [String: Any] ,
+
+                          let anyCallConnected = args["anyCallConnected"] as? Bool else {
+                        result("OK")
+                        return
+                    }
+
             result("OK")
             break;
         default:
@@ -486,6 +497,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
             self?.sharedProvider?.reportOutgoingCall(with: call.uuid, connectedAt: call.connectedData)
         }
         self.answerCall = call
+
         if(self.registrationStatus != "REGISTERED") {
 
                 DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(3000)) {
@@ -493,10 +505,19 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
                                                 action.fulfill()
                                             }
 
-        }else{
-                    
-                     sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
-                     action.fulfill()
+        }else {
+            if(anyCallConnected!){
+                //Avoid delay for second call
+                sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
+                action.fulfill()
+            }else{
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(3000)) {
+                                                self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
+                                                action.fulfill()
+                                            }
+            }
+                   
         }
         
 
