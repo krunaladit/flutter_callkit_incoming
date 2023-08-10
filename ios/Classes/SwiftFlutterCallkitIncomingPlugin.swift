@@ -500,6 +500,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
 
         if(self.registrationStatus != "REGISTERED") {
 
+                self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_CUSTOM, ["eventType":"CALL_DELAY","eventMsg":"call incoming event for delay"])
                 DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(3000)) {
                                                 self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
                                                 action.fulfill()
@@ -511,7 +512,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
                 sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
                 action.fulfill()
             }else{
-                
+                  self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_CUSTOM, ["eventType":"CALL_DELAY","eventMsg":"call incoming event for delay"])
                 DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(3000)) {
                                                 self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
                                                 action.fulfill()

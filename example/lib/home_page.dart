@@ -204,7 +204,8 @@ class HomePageState extends State<HomePage> {
   Future<void> listenerEvent(Function? callback) async {
     try {
       FlutterCallkitIncoming.onEvent.listen((event) async {
-        print('HOME: $event');
+        print("FlutterCallkitIncoming Event ${event!.event}");
+        print("FlutterCallkitIncoming Body ${event.body}");
         switch (event!.event) {
           case Event.actionCallIncoming:
             // TODO: received an incoming call
