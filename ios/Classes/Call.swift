@@ -269,7 +269,7 @@ public class Call: NSObject {
             "type": type,
             "duration": duration,
             "extra": extra,
-            "ios": ios
+            "ios": ios,
             "isOutGoing": isOutGoing
         ]
         return map
