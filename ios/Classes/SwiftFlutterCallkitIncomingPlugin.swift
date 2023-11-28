@@ -557,7 +557,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         call.isOnHold = action.isOnHold
         call.isMuted = action.isOnHold
         self.callManager.setHold(call: call, onHold: action.isOnHold)
-        self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_TOGGLE_HOLD, [ "id": action.callUUID.uuidString, "isOnHold": action.isOnHold,"handle": call.data.handle,"nameCaller": call.data.nameCaller  ])
+        self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_TOGGLE_HOLD, [ "id": action.callUUID.uuidString, "isOnHold": action.isOnHold,"handle": call.data.handle,"nameCaller": call.data.nameCaller,"isOutGoing": call.isOutGoing ])
         sendHoldEvent(action.callUUID.uuidString, action.isOnHold)
         action.fulfill()
     }
