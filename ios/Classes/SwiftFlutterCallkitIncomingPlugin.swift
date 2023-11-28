@@ -557,7 +557,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         call.isOnHold = action.isOnHold
         call.isMuted = action.isOnHold
         self.callManager.setHold(call: call, onHold: action.isOnHold)
-        self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_TOGGLE_HOLD, [ "id": action.callUUID.uuidString, "isOnHold": action.isOnHold,"handle": call.data.handle ])
+        self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_TOGGLE_HOLD, [ "id": action.callUUID.uuidString, "isOnHold": action.isOnHold,"handle": call.data.handle,"nameCaller": call.data.nameCaller  ])
         sendHoldEvent(action.callUUID.uuidString, action.isOnHold)
         action.fulfill()
     }
@@ -568,7 +568,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
             return
         }
         call.isMuted = action.isMuted
-        self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_TOGGLE_MUTE, [ "id": action.callUUID.uuidString, "isMuted": action.isMuted , "handle": call.data.handle ])
+        self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_TOGGLE_MUTE, [ "id": action.callUUID.uuidString, "isMuted": action.isMuted , "handle": call.data.handle,"nameCaller": call.data.nameCaller ])
        // sendMuteEvent(action.callUUID.uuidString, action.isMuted)
         action.fulfill()
     }
