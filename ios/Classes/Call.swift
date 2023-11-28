@@ -153,6 +153,7 @@ public class Call: NSObject {
     @objc public var audioSessionActive: Bool
     @objc public var audioSessionPreferredSampleRate: Double
     @objc public var audioSessionPreferredIOBufferDuration: Double
+    @objc public var isOutGoing: Bool
     
     @objc public init(id: String, nameCaller: String, handle: String, type: Int) {
         self.uuid = id
@@ -179,6 +180,7 @@ public class Call: NSObject {
         self.audioSessionActive = true
         self.audioSessionPreferredSampleRate = 44100.0
         self.audioSessionPreferredIOBufferDuration = 0.005
+        self.isOutGoing = false
     }
     
     @objc public convenience init(args: NSDictionary) {
@@ -198,6 +200,7 @@ public class Call: NSObject {
         self.type = args["type"] as? Int ?? 0
         self.duration = args["duration"] as? Int ?? 30000
         self.extra = args["extra"] as? NSDictionary ?? [:]
+        self.isOutGoing = args["isOutGoing"] as? Bool ?? false
         
         
         if let ios = args["ios"] as? [String: Any] {
@@ -267,6 +270,7 @@ public class Call: NSObject {
             "duration": duration,
             "extra": extra,
             "ios": ios
+            "isOutGoing": isOutGoing
         ]
         return map
     }
