@@ -1,161 +1,66 @@
-import 'dart:async';
-
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart'
+    show debugDefaultTargetPlatformOverride;
 import 'package:flutter/material.dart';
-import 'package:flutter_callkit_incoming/entities/entities.dart';
-import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
-import 'package:flutter_callkit_incoming_example/app_router.dart';
-import 'package:flutter_callkit_incoming_example/navigation_service.dart';
-import 'package:uuid/uuid.dart';
+import 'package:flutter_callkit_incoming_example/about.dart';
+import 'package:flutter_callkit_incoming_example/callscreen.dart';
+import 'package:flutter_callkit_incoming_example/dialpad.dart';
+import 'package:flutter_callkit_incoming_example/register.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:sip_ua/sip_ua.dart';
 
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("Handling a background message: ${message.messageId}");
-  showCallkitIncoming(Uuid().v4());
-}
 
-Future<void> showCallkitIncoming(String uuid) async {
-  final params = CallKitParams(
-    id: uuid,
-    nameCaller: 'Hien Nguyen',
-    appName: 'Callkit',
-    avatar: 'https://i.pravatar.cc/100',
-    handle: '0123456789',
-    type: 0,
-    duration: 30000,
-    textAccept: 'Accept',
-    textDecline: 'Decline',
-    missedCallNotification: NotificationParams(
-      showNotification: true,
-      isShowCallback: true,
-      subtitle: 'Missed call',
-      callbackText: 'Call back',
-    ),
-    extra: <String, dynamic>{'userId': '1a2b3c4d'},
-    headers: <String, dynamic>{'apiKey': 'Abc@123!', 'platform': 'flutter'},
-    android: AndroidParams(
-      isCustomNotification: true,
-      isShowLogo: false,
-      ringtonePath: 'system_ringtone_default',
-      backgroundColor: '#0955fa',
-      backgroundUrl: 'assets/test.png',
-      actionColor: '#4CAF50',
-    ),
-    ios: IOSParams(
-      iconName: 'CallKitLogo',
-      handleType: '',
-      supportsVideo: true,
-      maximumCallGroups: 2,
-      maximumCallsPerCallGroup: 1,
-      audioSessionMode: 'default',
-      audioSessionActive: true,
-      audioSessionPreferredSampleRate: 44100.0,
-      audioSessionPreferredIOBufferDuration: 0.005,
-      supportsDTMF: true,
-      supportsHolding: true,
-      supportsGrouping: false,
-      supportsUngrouping: false,
-      ringtonePath: 'system_ringtone_default',
-    ),
-  );
-  await FlutterCallkitIncoming.showCallkitIncoming(params);
-}
+
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
+  if (WebRTC.platformIsDesktop) {
+    debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
+  }
   runApp(MyApp());
 }
 
-class MyApp extends StatefulWidget {
-  @override
-  _MyAppState createState() => _MyAppState();
-}
+typedef PageContentBuilder = Widget Function(
+    [SIPUAHelper? helper, Object? arguments]);
 
-class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  late final Uuid _uuid;
-  String? _currentUuid;
+// ignore: must_be_immutable
+class MyApp extends StatelessWidget {
+  final SIPUAHelper _helper = SIPUAHelper();
+  Map<String, PageContentBuilder> routes = {
+    '/': ([SIPUAHelper? helper, Object? arguments]) => DialPadWidget(helper),
+    '/register': ([SIPUAHelper? helper, Object? arguments]) =>
+        RegisterWidget(helper),
+    '/callscreen': ([SIPUAHelper? helper, Object? arguments]) =>
+        CallScreenWidget(helper, arguments as Call?),
+    '/about': ([SIPUAHelper? helper, Object? arguments]) => AboutWidget(),
+  };
 
-  late final FirebaseMessaging _firebaseMessaging;
-
-  @override
-  void initState() {
-    super.initState();
-    _uuid = Uuid();
-    initFirebase();
-    WidgetsBinding.instance.addObserver(this);
-    //Check call when open app from terminated
-    checkAndNavigationCallingPage();
-  }
-
-  getCurrentCall() async {
-    //check current call from pushkit if possible
-    var calls = await FlutterCallkitIncoming.activeCalls();
-    if (calls is List) {
-      if (calls.isNotEmpty) {
-        print('DATA: $calls');
-        _currentUuid = calls[0]['id'];
-        return calls[0];
+  Route<dynamic>? _onGenerateRoute(RouteSettings settings) {
+    final String? name = settings.name;
+    final PageContentBuilder? pageContentBuilder = routes[name!];
+    if (pageContentBuilder != null) {
+      if (settings.arguments != null) {
+        final Route route = MaterialPageRoute<Widget>(
+            builder: (context) =>
+                pageContentBuilder(_helper, settings.arguments));
+        return route;
       } else {
-        _currentUuid = "";
-        return null;
+        final Route route = MaterialPageRoute<Widget>(
+            builder: (context) => pageContentBuilder(_helper));
+        return route;
       }
     }
-  }
-
-  checkAndNavigationCallingPage() async {
-    var currentCall = await getCurrentCall();
-    if (currentCall != null) {
-      NavigationService.instance
-          .pushNamedIfNotCurrent(AppRoute.callingPage, args: currentCall);
-    }
-  }
-
-  @override
-  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-    print(state);
-    if (state == AppLifecycleState.resumed) {
-      //Check call when open app from background
-      checkAndNavigationCallingPage();
-    }
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
-
-  initFirebase() async {
-    await Firebase.initializeApp();
-    _firebaseMessaging = FirebaseMessaging.instance;
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      print(
-          'Message title: ${message.notification?.title}, body: ${message.notification?.body}, data: ${message.data}');
-      _currentUuid = _uuid.v4();
-      showCallkitIncoming(_currentUuid!);
-    });
-    _firebaseMessaging.getToken().then((token) {
-      print('Device Token FCM: $token');
-    });
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.light(),
-      onGenerateRoute: AppRoute.generateRoute,
-      initialRoute: AppRoute.homePage,
-      navigatorKey: NavigationService.instance.navigationKey,
-      navigatorObservers: <NavigatorObserver>[
-        NavigationService.instance.routeObserver
-      ],
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        fontFamily: 'Roboto',
+      ),
+      initialRoute: '/',
+      onGenerateRoute: _onGenerateRoute,
     );
-  }
-
-  Future<void> getDevicePushTokenVoIP() async {
-    var devicePushTokenVoIP =
-        await FlutterCallkitIncoming.getDevicePushTokenVoIP();
-    print(devicePushTokenVoIP);
   }
 }

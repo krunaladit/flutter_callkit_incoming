@@ -24,11 +24,20 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   uuid: 3.0.5
-  firebase_messaging: 11.2.6
-  firebase_core: ^1.17.0
+  firebase_messaging:
+  firebase_core:
   firebase_messaging_platform_interface: 3.5.0
   http: ^0.13.4
+  shared_preferences: ^2.0.5
+  permission_handler: ^9.2.0
 
+dependency_overrides:
+  #  firebase_core_platform_interface: 4.5.1
+  flutter_webrtc: 0.9.22
+  sip_ua:
+    git:
+      url: https://github.com/krunaladit/dart-sip-ua.git
+      ref: develop-contactsip-upgrade
 dev_dependencies:
   flutter_test:
     sdk: flutter
