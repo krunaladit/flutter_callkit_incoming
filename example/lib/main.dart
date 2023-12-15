@@ -5,6 +5,7 @@ import 'package:flutter_callkit_incoming_example/about.dart';
 import 'package:flutter_callkit_incoming_example/callscreen.dart';
 import 'package:flutter_callkit_incoming_example/dialpad.dart';
 import 'package:flutter_callkit_incoming_example/register.dart';
+import 'package:flutter_callkit_incoming_example/sip_ua_helper_common.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:sip_ua/sip_ua.dart';
 
@@ -15,6 +16,7 @@ void main() {
   if (WebRTC.platformIsDesktop) {
     debugDefaultTargetPlatformOverride = TargetPlatform.fuchsia;
   }
+  SipUaHealerCommon();
   runApp(MyApp());
 }
 

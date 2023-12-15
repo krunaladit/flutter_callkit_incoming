@@ -1,5 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_callkit_incoming/entities/call_event.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
+import 'package:flutter_callkit_incoming_example/register.dart';
+import 'package:flutter_callkit_incoming_example/sip_ua_helper_common.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,6 +35,9 @@ class _MyDialPadWidget extends State<DialPadWidget>
     receivedMsg = "";
     _bindEventListeners();
     _loadSettings();
+    if (Platform.isIOS) {
+      getCallingEvent();
+    }
   }
 
   void _loadSettings() async {
@@ -39,7 +48,72 @@ class _MyDialPadWidget extends State<DialPadWidget>
 
     setState(() {});
   }
+  getCallingEvent() {
+    FlutterCallkitIncoming.onEvent.listen((event) async {
+      print("FlutterCallkitIncoming Event ${event!.event}");
+      print("FlutterCallkitIncoming Body ${event.body}");
 
+      switch (event.event) {
+        case Event.actionCallIncoming:
+       SipUaHealerCommon().registerUser();
+
+          break;
+        case Event.actionCallStart:
+        // TODO: started an outgoing call
+        // TODO: show screen calling in Flutter
+          break;
+        case Event.actionCallAccept:
+        // TODO: accepted an incoming call
+        // TODO: show screen calling in Flutter
+          SipUaHealerCommon().handleAccept("");
+          break;
+        case Event.actionCallDecline:
+          print("ACTION_CALL_DECLINE CLICK");
+          // TODO: declined an incoming call
+
+
+          break;
+        case Event.actionCallEnded:
+        // TODO: ended an incoming/outgoing call
+          print("ACTION_CALL_ENDED CLICK");
+
+          break;
+        case Event.actionCallTimeout:
+          print("ACTION_CALL_TIMEOUT CLICK");
+
+          // TODO: missed an incoming call
+          break;
+        case Event.actionCallCallback:
+        // TODO: only Android - click action `Call back` from missed call notification
+          break;
+        case Event.actionCallToggleHold:
+        // TODO: only iOS
+
+
+          break;
+        case Event.actionCallToggleMute:
+        // TODO: only iOS
+
+          break;
+        case Event.actionCallToggleDmtf:
+        // TODO: only iOS
+          break;
+        case Event.actionCallToggleGroup:
+        // TODO: only iOS
+          break;
+      // case Event.ACTION_CALL_TOGGLE_AUDIO_SESSION:
+      //   // TODO: only iOS
+      //   break;
+      // case Event.ACTION_DID_UPDATE_DEVICE_PUSH_TOKEN_VOIP:
+      //   // TODO: only iOS
+      //   break;
+        case Event.actionCallCustom:
+        // TODO: Handle this case.
+
+          break;
+      }
+    });
+  }
   void _bindEventListeners() {
     helper!.addSipUaHelperListener(this);
   }

@@ -1,7 +1,15 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_callkit_incoming_example/sip_ua_helper_common.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sip_ua/sip_ua.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
+// import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+
+final dio = Dio();
 
 class RegisterWidget extends StatefulWidget {
   final SIPUAHelper? _helper;
@@ -31,7 +39,7 @@ class _MyRegisterWidget extends State<RegisterWidget>
   initState() {
     super.initState();
     _registerState = helper!.registerState;
-    helper!.addSipUaHelperListener(this);
+    //helper!.addSipUaHelperListener(this);
     _loadSettings();
   }
 
@@ -125,8 +133,47 @@ class _MyRegisterWidget extends State<RegisterWidget>
     setState(() {
       _registerState = state;
     });
-  }
+    // if (state.state == RegistrationStateEnum.REGISTERED) {
+    //   postPBXToken();
+    // }
 
+  }
+  void postPBXToken () async{
+    String token = _preferences.getString('voiptoken')?? "";
+    String sipUser = _preferences.getString('auth_user')??"021-021OwnerVMobile2713";
+    var data = {
+      "token": token,
+    "devicetype": "ios",
+    "sipuser": sipUser,
+    // "environment": kDebugMode ? "debug" : "prod",
+    "environment":  "debug" ,
+    "sessionAuthorization": "f3635738.b841.4602.9abd.01d3a3664f28",//Add session ID
+    "dnd": "off",
+    };
+
+    var header = {
+      "accept-mobile-api": "aditapp-mobile-api",
+      "cookie": "s%3ATwGK-ypFf36Hn4AK08gcfgJxbxYrc38Z.zXBSwNMcSD15V3ApSD7eEM171mY00OxKoZliYKBs9rk",
+      "authorization": "f3635738.b841.4602.9abd.01d3a3664f28",
+    };
+
+//https://betatelephony-manager.aditadv.xyz/pbx/proxyapi.php?key=ZNmuP3wMJqsXujtN
+   //var url = Uri.https('https://betamobileapi.adit.com', '/pbx/proxyapi.php?key=ZNmuP3wMJqsXujtN');
+  //   var url = Uri.parse("https://betatelephony-manager.aditadv.xyz/pbx/proxyapi.php?key=ZNmuP3wMJqsXujtN");
+   // print(url);
+    print(data);
+
+    var response = await dio.post('https://betamobileapi.adit.com/bridge/mobiletokensave', data: data,options: Options(headers: header));
+
+
+    if (response.statusCode == 200) {
+      print('Response body: ${response}');
+      print(response.data.toString());
+
+    }
+    print('Response status: ${response.statusCode}');
+
+  }
   void _alert(BuildContext context, String alertFieldName) {
     showDialog<void>(
       context: context,
@@ -148,31 +195,14 @@ class _MyRegisterWidget extends State<RegisterWidget>
     );
   }
 
-  void _handleSave(BuildContext context) async{
+  handleSave() async{
     if (_wsUriController.text == '') {
       _alert(context, "WebSocket URL");
     } else if (_sipUriController.text == '') {
       _alert(context, "SIP URI");
     }
-    var voipToken = await FlutterCallkitIncoming.getDevicePushTokenVoIP();
-    _preferences.setString('voiptoken',voipToken);
-    print("VOIP_TOKEN");
-    print(voipToken);
-    UaSettings settings = UaSettings();
 
-    settings.webSocketUrl = _wsUriController.text;
-    settings.webSocketSettings.extraHeaders = _wsExtraHeaders;
-    settings.webSocketSettings.allowBadCertificate = true;
-    //settings.webSocketSettings.userAgent = 'Dart/2.8 (dart:io) for OpenSIPS.';
-
-    settings.uri = _sipUriController.text;
-    settings.authorizationUser = _authorizationUserController.text;
-    settings.password = _passwordController.text;
-    settings.displayName = _displayNameController.text;
-    settings.userAgent = 'Dart SIP Client v1.0.0';
-    settings.dtmfMode = DtmfMode.RFC2833;
-
-    helper!.start(settings);
+     SipUaHealerCommon().registerUser();
   }
 
   @override
@@ -335,7 +365,7 @@ class _MyRegisterWidget extends State<RegisterWidget>
                           ),
                           color: Colors.blue,
                           textColor: Colors.white,
-                          onPressed: () => _handleSave(context),
+                          onPressed: () => handleSave(),
                         ),
                       ))
                 ])));
