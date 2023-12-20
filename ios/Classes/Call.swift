@@ -180,7 +180,7 @@ public class Call: NSObject {
         self.audioSessionActive = true
         self.audioSessionPreferredSampleRate = 44100.0
         self.audioSessionPreferredIOBufferDuration = 0.005
-        self.isOutGoing = false
+        self.isOutGoing = true
     }
     
     @objc public convenience init(args: NSDictionary) {
@@ -200,7 +200,7 @@ public class Call: NSObject {
         self.type = args["type"] as? Int ?? 0
         self.duration = args["duration"] as? Int ?? 30000
         self.extra = args["extra"] as? NSDictionary ?? [:]
-        self.isOutGoing = args["isOutGoing"] as? Bool ?? false
+        self.isOutGoing = args["isOutGoing"] as? Bool ?? true
         
         
         if let ios = args["ios"] as? [String: Any] {
