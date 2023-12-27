@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_callkit_incoming/entities/android_params.dart';
 import 'package:flutter_callkit_incoming/entities/call_event.dart';
@@ -9,6 +10,7 @@ import 'package:flutter_callkit_incoming/entities/notification_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_callkit_incoming_example/app_router.dart';
 import 'package:flutter_callkit_incoming_example/navigation_service.dart';
+import 'package:flutter_callkit_incoming_example/register.dart';
 import 'package:http/http.dart';
 import 'package:uuid/uuid.dart';
 
@@ -23,6 +25,7 @@ class HomePageState extends State<HomePage> {
   late final Uuid _uuid;
   String? _currentUuid;
   String textEvents = "";
+  final dioObject = Dio();
 
   @override
   void initState() {
@@ -112,11 +115,48 @@ class HomePageState extends State<HomePage> {
       }
     }
   }
+  Future checkRespose1() async {
+    try{
+      return dioObject
+          .get("https://official-joke-api.appspot.com/random_joke")
+          .catchError((error, stackTrace) {
+        print(error);
+        print(stackTrace);
+        Future.value(false);
+      });
+    }catch(e){
+      print(e);
+      return false;
+    }
+
+  }
+  Future checkRespose2() async {
+    try{
+      return dioObject
+          .get("http://httpbin/delay/5")
+          .catchError((error, stackTrace) {
+        print(error);
+        print(stackTrace);
+        Future.value(false);
+      });
+    }catch(e){
+      print(e);
+      return false;
+    }
+
+  }
 
   Future<void> makeFakeCallInComing() async {
     //FlutterCallkitIncoming.sendRegistrationStatus("REGISTERED");
 
-    await Future.delayed(const Duration(seconds: 10), () async {
+    var response = await Future.wait([
+      checkRespose1(),
+      checkRespose2()
+    ]);
+    print("RESPONSE 1 : ${response[0].data}");
+    print("RESPONSE 2 : ${response[1].data}");
+
+    await Future.delayed(const Duration(seconds: 20), () async {
       _currentUuid = _uuid.v4();
 
       final params = CallKitParams(
