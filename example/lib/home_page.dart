@@ -124,6 +124,8 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> makeFakeCallInComing() async {
+    //FlutterCallkitIncoming.sendRegistrationStatus("REGISTERED");
+
     await Future.delayed(const Duration(seconds: 10), () async {
       _currentUuid = _uuid.v4();
 
@@ -159,17 +161,17 @@ class HomePageState extends State<HomePage> {
         ios: const IOSParams(
           iconName: 'CallKitLogo',
           handleType: '',
-          supportsVideo: true,
+          supportsVideo: false,
           maximumCallGroups: 2,
-          maximumCallsPerCallGroup: 1,
+          maximumCallsPerCallGroup: 2,
           audioSessionMode: 'default',
           audioSessionActive: true,
           audioSessionPreferredSampleRate: 44100.0,
           audioSessionPreferredIOBufferDuration: 0.005,
-          supportsDTMF: true,
+          supportsDTMF: false,
           supportsHolding: true,
-          supportsGrouping: false,
-          supportsUngrouping: false,
+          supportsGrouping: true,
+          supportsUngrouping: true,
           ringtonePath: 'system_ringtone_default',
         ),
       );
@@ -212,7 +214,8 @@ class HomePageState extends State<HomePage> {
   Future<void> listenerEvent(void Function(CallEvent) callback) async {
     try {
       FlutterCallkitIncoming.onEvent.listen((event) async {
-        print('HOME: $event');
+        print("FlutterCallkitIncoming Event ${event!.event}");
+        print("FlutterCallkitIncoming Body ${event.body}");
         switch (event!.event) {
           case Event.actionCallIncoming:
             // TODO: received an incoming call

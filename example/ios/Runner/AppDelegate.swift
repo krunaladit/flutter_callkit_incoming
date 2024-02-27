@@ -45,7 +45,9 @@ import flutter_callkit_incoming
         let handle = objData["handle"] as? String ?? ""
         let data = flutter_callkit_incoming.Data(id: UUID().uuidString, nameCaller: nameCaller, handle: handle, type: isVideo ? 1 : 0)
         //set more data...
-        //data.nameCaller = nameCaller
+        data.nameCaller = "Johnny"
+        data.supportsDTMF = false
+        data.supportsHolding = true
         SwiftFlutterCallkitIncomingPlugin.sharedInstance?.startCall(data, fromPushKit: true)
         
         return super.application(application, continue: userActivity, restorationHandler: restorationHandler)
@@ -73,12 +75,17 @@ import flutter_callkit_incoming
         let id = payload.dictionaryPayload["id"] as? String ?? ""
         let nameCaller = payload.dictionaryPayload["nameCaller"] as? String ?? ""
         let handle = payload.dictionaryPayload["handle"] as? String ?? ""
-        let isVideo = payload.dictionaryPayload["isVideo"] as? Bool ?? false
+        let isVideo = false
         
         let data = flutter_callkit_incoming.Data(id: id, nameCaller: nameCaller, handle: handle, type: isVideo ? 1 : 0)
         //set more data
         data.extra = ["user": "abc@123", "platform": "ios"]
         //data.iconName = ...
+        data.supportsDTMF = false;
+        data.supportsHolding = true;
+         data.supportsVideo = false
+        data.supportsGrouping = true
+        data.supportsUngrouping = true
         //data.....
         SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(data, fromPushKit: true)
         

@@ -102,6 +102,7 @@ class CallingPageState extends State<CallingPage> {
   }
 
   Future<void> makeFakeConnectedCall(id) async {
+    // await FlutterCallkitIncoming.sendCallConnected(true);
     await FlutterCallkitIncoming.setCallConnected(id);
   }
 

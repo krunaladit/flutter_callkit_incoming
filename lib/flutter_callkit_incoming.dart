@@ -103,11 +103,22 @@ class FlutterCallkitIncoming {
     await _channel.invokeMethod("endAllCalls");
   }
 
+  static Future sendRegistrationStatus(String status) async{
+    await _channel.invokeMethod("sendRegisterStatus", {'status': status});
+  }
+
   /// Get active calls.
   /// On iOS: return active calls from Callkit.
   /// On Android: only return last call
   static Future<dynamic> activeCalls() async {
     return await _channel.invokeMethod("activeCalls");
+  }
+
+  /// Get active calls.
+  /// On iOS: return active calls from Callkit.
+  /// On Android: only return last call
+  static Future sendAnyCallConnected(bool anyCallConnected) async {
+    return await _channel.invokeMethod("sendAnyCallConnected", {'anyCallConnected':anyCallConnected});
   }
 
   /// Get device push token VoIP.
