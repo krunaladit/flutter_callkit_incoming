@@ -551,12 +551,36 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
             self?.sharedProvider?.reportOutgoingCall(with: call.uuid, connectedAt: call.connectedData)
         }
         self.answerCall = call
-        sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
-        if let appDelegate = UIApplication.shared.delegate as? CallkitIncomingAppDelegate {
-            appDelegate.onAccept(call, action)
-        }else {
-            action.fulfill()
-        }
+        if(self.registrationStatus != "REGISTERED") {
+
+                       sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_CUSTOM, ["eventType":"CALL_DELAY","eventMsg":"call incoming event for delay"])
+                       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(3000)) {
+                                                       sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
+                                                       if let appDelegate = UIApplication.shared.delegate as? CallkitIncomingAppDelegate {
+                                                                               appDelegate.onAccept(call, action)
+                                                                              }else {
+                                                                                   action.fulfill()
+                                                                                  }
+                                                   }
+
+               }else {
+                   if(anyCallConnected!){
+                       //Avoid delay for second call
+                       sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
+                       action.fulfill()
+                   }else{
+                         self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_CUSTOM, ["eventType":"CALL_DELAY","eventMsg":"call incoming event for delay"])
+                       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(3000)) {
+                                                       sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
+                                                       if let appDelegate = UIApplication.shared.delegate as? CallkitIncomingAppDelegate {
+                                                                           appDelegate.onAccept(call, action)
+                                                                            }else {
+                                                                               action.fulfill()
+                                                                           }
+                                                                   }
+                   }
+
+               }
     }
     
 
