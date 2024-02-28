@@ -553,9 +553,9 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         self.answerCall = call
         if(self.registrationStatus != "REGISTERED") {
 
-                       sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_CUSTOM, ["eventType":"CALL_DELAY","eventMsg":"call incoming event for delay"])
+                       self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_CUSTOM, ["eventType":"CALL_DELAY","eventMsg":"call incoming event for delay"])
                        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(3000)) {
-                                                       sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
+                                                       self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
                                                        if let appDelegate = UIApplication.shared.delegate as? CallkitIncomingAppDelegate {
                                                                                appDelegate.onAccept(call, action)
                                                                               }else {
@@ -566,12 +566,12 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
                }else {
                    if(anyCallConnected!){
                        //Avoid delay for second call
-                       sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
+                       self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
                        action.fulfill()
                    }else{
                          self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_CUSTOM, ["eventType":"CALL_DELAY","eventMsg":"call incoming event for delay"])
                        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(3000)) {
-                                                       sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
+                                                       self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
                                                        if let appDelegate = UIApplication.shared.delegate as? CallkitIncomingAppDelegate {
                                                                            appDelegate.onAccept(call, action)
                                                                             }else {
