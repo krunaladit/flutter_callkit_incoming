@@ -29,7 +29,7 @@ apply plugin: 'kotlin-android'
 
 android {
     compileSdk 34
-
+    namespace 'com.example.callkit'
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
