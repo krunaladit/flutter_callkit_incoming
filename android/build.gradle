@@ -30,6 +30,12 @@ apply plugin: 'kotlin-android'
 android {
     compileSdk 34
     namespace 'com.example.callkit'
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
