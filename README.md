@@ -4,6 +4,9 @@ A Flutter plugin to show incoming call in your Flutter app(Custom for Android/Ca
 
 [![pub package](https://img.shields.io/pub/v/flutter_callkit_incoming.svg)](https://pub.dev/packages/flutter_callkit_incoming)
 [![pub points](https://img.shields.io/pub/points/flutter_callkit_incoming?label=pub%20points)](https://pub.dev/packages/flutter_callkit_incoming/score)
+[![GitHub stars](https://img.shields.io/github/stars/hiennguyen92/flutter_callkit_incoming.svg?style=social)](https://github.com/hiennguyen92/flutter_callkit_incoming/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/hiennguyen92/flutter_callkit_incoming.svg?style=social)](https://github.com/hiennguyen92/flutter_callkit_incoming/network)
+[![GitHub license](https://img.shields.io/github/license/hiennguyen92/flutter_callkit_incoming.svg)](https://github.com/hiennguyen92/flutter_callkit_incoming/blob/master/LICENSE)
 [![Build Status](https://github.com/hiennguyen92/flutter_callkit_incoming/actions/workflows/main.yml/badge.svg)](https://github.com/hiennguyen92/flutter_callkit_incoming/actions/workflows/main.yml)
 
 ## Sponsors
@@ -35,27 +38,35 @@ Our top sponsors are shown below!
     ```console
     flutter pub add flutter_callkit_incoming
     ```
-  * Add pubspec.yaml:
-    ```console
-        dependencies:
-          flutter_callkit_incoming: any
-    ```
-2. Configure Project
-  * Android
-     * AndroidManifest.xml
-     ```
-      <manifest...>
-          ...
-          <!--
-              Using for load image from internet
-          -->
-          <uses-permission android:name="android.permission.INTERNET"/>
-      </manifest>
-     ```
-     The following rule needs to be added in the proguard-rules.pro to avoid obfuscated keys.
-     ```
-      -keep class com.hiennv.flutter_callkit_incoming.** { *; }
-     ```
+    * Add pubspec.yaml:
+      ```console
+          dependencies:
+            flutter_callkit_incoming: any
+      ```
+      2. Configure Project
+         * Android
+            * AndroidManifest.xml
+            ```
+             <manifest...>
+                 ...
+                 <!--
+                     Using for load image from internet
+                 -->
+                 <uses-permission android:name="android.permission.INTERNET"/>
+
+               <application ...>
+                   <activity ...
+                      android:name=".MainActivity"
+                      android:launchMode="singleInstance">
+                    ...
+               ...
+    
+             </manifest>
+            ```
+            The following rule needs to be added in the proguard-rules.pro to avoid obfuscated keys.
+            ```
+             -keep class com.hiennv.flutter_callkit_incoming.** { *; }
+            ```
   * iOS
      * Info.plist
       ```
@@ -149,6 +160,13 @@ Our top sponsors are shown below!
         extra: <String, dynamic>{'userId': '1a2b3c4d'},
       );
       await FlutterCallkitIncoming.showMissCallNotification(params);
+    ```
+  * Hide notification call for Android
+    ```
+      CallKitParams params = CallKitParams(
+        id: _currentUuid,
+      );
+     await FlutterCallkitIncoming.hideCallkitIncoming(params);
     ```
 
   * Started an outgoing call
@@ -486,6 +504,7 @@ Our top sponsors are shown below!
     |  **`incomingCallNotificationChannelName`** | Notification channel name of incoming call.                                                          | `Incoming call`                                                   |
     |  **`missedCallNotificationChannelName`** | Notification channel name of missed call.                                                            | `Missed call`                                                     |
     |  **`isShowCallID`** | Show call id app inside full screen/notification.                                                    | false                                                             |
+    |  **`isShowFullLockedScreen`** | Show full screen on Locked Screen.                                                                   | true                                                              |
 
     <br>
 
