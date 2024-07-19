@@ -86,6 +86,7 @@ import flutter_callkit_incoming
          data.supportsVideo = false
         data.supportsGrouping = true
         data.supportsUngrouping = true
+        data.isOutGoing = false
         //data.....
         SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(data, fromPushKit: true)
         
