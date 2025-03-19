@@ -1,34 +1,33 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.hiennv.flutter_callkit_incoming">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.MANAGE_OWN_CALLS" />
 
     <application>
 
         <activity
             android:name="com.hiennv.flutter_callkit_incoming.CallkitIncomingActivity"
-            android:taskAffinity="com.hiennv.flutter_callkit_incoming.INCOMING_CALL_AFFINITY"
-            android:excludeFromRecents="true"
-            android:noHistory="true"
-            android:turnScreenOn="true"
             android:configChanges="orientation"
+            android:excludeFromRecents="true"
             android:exported="true"
-            android:theme="@style/CallkitIncomingTheme">
+            android:noHistory="true"
+            android:taskAffinity="com.hiennv.flutter_callkit_incoming.INCOMING_CALL_AFFINITY"
+            android:theme="@style/CallkitIncomingTheme"
+            android:turnScreenOn="true">
             <intent-filter>
                 <action android:name="${applicationId}.com.hiennv.flutter_callkit_incoming.ACTION_CALL_INCOMING" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <activity
+            android:name="com.hiennv.flutter_callkit_incoming.TransparentActivity"
             android:exported="false"
-            android:theme="@style/TranslucentTheme"
-            android:name="com.hiennv.flutter_callkit_incoming.TransparentActivity"/>
+            android:theme="@style/TranslucentTheme" />
 
         <receiver
             android:name="com.hiennv.flutter_callkit_incoming.CallkitIncomingBroadcastReceiver"
@@ -44,9 +43,9 @@
         </receiver>
 
         <service
+            android:name="com.hiennv.flutter_callkit_incoming.CallkitSoundPlayerService"
             android:enabled="true"
-            android:exported="true"
-            android:name="com.hiennv.flutter_callkit_incoming.CallkitSoundPlayerService"/>
+            android:exported="true" />
 
     </application>
 </manifest>
