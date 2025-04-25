@@ -554,7 +554,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         if(self.registrationStatus != "REGISTERED") {
 
                        self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_CUSTOM, ["eventType":"CALL_DELAY","eventMsg":"call incoming event for delay"])
-                       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(3500)) {
+                       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(4000)) {
                                                        self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
                                                        if let appDelegate = UIApplication.shared.delegate as? CallkitIncomingAppDelegate {
                                                                                appDelegate.onAccept(call, action)
@@ -570,7 +570,7 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
                        action.fulfill()
                    }else{
                          self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_CUSTOM, ["eventType":"CALL_DELAY","eventMsg":"call incoming event for delay"])
-                       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(3500)) {
+                       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(4000)) {
                                                        self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
                                                        if let appDelegate = UIApplication.shared.delegate as? CallkitIncomingAppDelegate {
                                                                            appDelegate.onAccept(call, action)
