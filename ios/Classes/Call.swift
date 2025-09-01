@@ -155,14 +155,14 @@ public class Call: NSObject {
     @objc public var audioSessionActive: Bool
     @objc public var audioSessionPreferredSampleRate: Double
     @objc public var audioSessionPreferredIOBufferDuration: Double
-    
+     @objc public var isOutGoing: Bool
     //missedCallNotification
     @objc public var isShowMissedCallNotification: Bool = true
     @objc public var missedNotificationSubtitle: String
-    
+
     @objc public var missedNotificationCallbackText: String
     @objc public var isShowCallback: Bool = true
-    
+
     
     @objc public init(id: String, nameCaller: String, handle: String, type: Int) {
         self.uuid = id
@@ -191,7 +191,7 @@ public class Call: NSObject {
         self.audioSessionActive = true
         self.audioSessionPreferredSampleRate = 44100.0
         self.audioSessionPreferredIOBufferDuration = 0.005
-        
+        self.isOutGoing = true
         self.isShowMissedCallNotification = true
         self.missedNotificationSubtitle = "Missed Call"
         self.missedNotificationCallbackText = "Call back"
@@ -217,7 +217,8 @@ public class Call: NSObject {
         self.duration = args["duration"] as? Int ?? 30000
         self.isAccepted = args["isAccepted"] as? Bool ?? false
         self.extra = args["extra"] as? NSDictionary ?? [:]
-        
+        self.isOutGoing = args["isOutGoing"] as? Bool ?? true
+
         
         if let ios = args["ios"] as? [String: Any] {
             self.iconName = ios["iconName"] as? String ?? "CallKitLogo"
@@ -305,7 +306,8 @@ public class Call: NSObject {
             "isAccepted": isAccepted,
             "extra": extra,
             "ios": ios,
-            "missedCallNotification": missedCallNotification
+             "isOutGoing": isOutGoing,
+             "missedCallNotification": missedCallNotification
         ]
         return map
     }
