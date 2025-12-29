@@ -135,6 +135,7 @@ public class Call: NSObject {
     @objc public var type: Int
     @objc public var normalHandle: Int
     @objc public var duration: Int
+    @objc public var isAccepted: Bool
     @objc public var extra: NSDictionary
     
     //iOS
@@ -155,7 +156,15 @@ public class Call: NSObject {
     @objc public var audioSessionPreferredSampleRate: Double
     @objc public var audioSessionPreferredIOBufferDuration: Double
     @objc public var isOutGoing: Bool
-    
+
+    //missedCallNotification
+    @objc public var isShowMissedCallNotification: Bool = true
+    @objc public var missedNotificationSubtitle: String
+
+    @objc public var missedNotificationCallbackText: String
+    @objc public var isShowCallback: Bool = true
+
+
     @objc public init(id: String, nameCaller: String, handle: String, type: Int) {
         self.uuid = id
         self.nameCaller = nameCaller
@@ -165,6 +174,7 @@ public class Call: NSObject {
         self.type = type
         self.normalHandle = 0
         self.duration = 30000
+        self.isAccepted = false
         self.extra = [:]
         self.iconName = "CallKitLogo"
         self.handleType = ""
@@ -183,6 +193,11 @@ public class Call: NSObject {
         self.audioSessionPreferredSampleRate = 44100.0
         self.audioSessionPreferredIOBufferDuration = 0.005
         self.isOutGoing = true
+
+        self.isShowMissedCallNotification = true
+        self.missedNotificationSubtitle = "Missed Call"
+        self.missedNotificationCallbackText = "Call back"
+        self.isShowCallback = true
     }
     
     @objc public convenience init(args: NSDictionary) {
@@ -202,9 +217,10 @@ public class Call: NSObject {
         self.type = args["type"] as? Int ?? 0
         self.normalHandle = args["normalHandle"] as? Int ?? 0
         self.duration = args["duration"] as? Int ?? 30000
+        self.isAccepted = args["isAccepted"] as? Bool ?? false
         self.extra = args["extra"] as? NSDictionary ?? [:]
         self.isOutGoing = args["isOutGoing"] as? Bool ?? true
-        
+
         
         if let ios = args["ios"] as? [String: Any] {
             self.iconName = ios["iconName"] as? String ?? "CallKitLogo"
@@ -241,9 +257,26 @@ public class Call: NSObject {
             self.audioSessionPreferredSampleRate = args["audioSessionPreferredSampleRate"] as? Double ?? 44100.0
             self.audioSessionPreferredIOBufferDuration = args["audioSessionPreferredIOBufferDuration"] as? Double ?? 0.005
         }
+        if let missedCallNotification = args["missedCallNotification"] as? [String: Any] {
+            self.isShowMissedCallNotification = missedCallNotification["showNotification"] as? Bool ?? true
+            self.missedNotificationSubtitle = missedCallNotification["subtitle"] as? String ?? "Missed Call"
+            self.missedNotificationCallbackText = missedCallNotification["callbackText"] as? String ?? "Call back"
+            self.isShowCallback = missedCallNotification["isShowCallback"] as? Bool ?? true
+        }else {
+            self.isShowMissedCallNotification = true
+            self.missedNotificationSubtitle = "Missed Call"
+            self.missedNotificationCallbackText = "Call back"
+            self.isShowCallback = true
+        }
     }
     
     open func toJSON() -> [String: Any] {
+        let missedCallNotification: [String : Any] = [
+            "showNotification": isShowMissedCallNotification,
+            "subtitle": missedNotificationSubtitle,
+            "callbackText": missedNotificationCallbackText,
+            "isShowCallback": isShowCallback
+        ]
         let ios: [String : Any] = [
             "iconName": iconName,
             "handleType": handleType,
@@ -272,9 +305,12 @@ public class Call: NSObject {
             "type": type,
             "normalHandle": normalHandle,
             "duration": duration,
+            "isAccepted": isAccepted,
             "extra": extra,
             "ios": ios,
             "isOutGoing": isOutGoing
+            "ios": ios,
+            "missedCallNotification": missedCallNotification
         ]
         return map
     }

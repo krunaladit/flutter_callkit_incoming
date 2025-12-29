@@ -7,7 +7,7 @@ import flutter_callkit_incoming
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate, CallkitIncomingAppDelegate {
-
+    
     
     override func application(
         _ application: UIApplication,
@@ -20,13 +20,40 @@ import flutter_callkit_incoming
         let voipRegistry: PKPushRegistry = PKPushRegistry(queue: mainQueue)
         voipRegistry.delegate = self
         voipRegistry.desiredPushTypes = [PKPushType.voIP]
-
+        
         //Use if using WebRTC
         //RTCAudioSession.sharedInstance().useManualAudio = true
         //RTCAudioSession.sharedInstance().isAudioEnabled = false
         
+        //Add for Missed call notification
+        if #available(iOS 10.0, *) {
+            UNUserNotificationCenter.current().delegate = self as UNUserNotificationCenterDelegate
+        }
+        
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
+    
+    // Add for Missed call notification(show notification when foreground)
+    override func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                         willPresent notification: UNNotification,
+                                         withCompletionHandler completionHandler:
+                                         @escaping (UNNotificationPresentationOptions) -> Void) {
+        
+        CallkitNotificationManager.shared.userNotificationCenter(center, willPresent: notification, withCompletionHandler: completionHandler)
+    }
+    
+    // Add for Missed call notification(action when click callback in missed notification)
+    override func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                         didReceive response: UNNotificationResponse,
+                                         withCompletionHandler completionHandler: @escaping () -> Void) {
+        if response.actionIdentifier == CallkitNotificationManager.CALLBACK_ACTION {
+            let data = response.notification.request.content.userInfo as? [String: Any]
+            SwiftFlutterCallkitIncomingPlugin.sharedInstance?.sendCallbackEvent(data)
+        }
+        completionHandler()
+    }
+    
+    
     
     // Call back from Recent history
     override func application(_ application: UIApplication,
@@ -88,12 +115,10 @@ import flutter_callkit_incoming
         data.supportsUngrouping = true
         data.isOutGoing = false
         //data.....
-        SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(data, fromPushKit: true)
-        
-        //Make sure call completion()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(data, fromPushKit: true){
             completion()
         }
+        
     }
     
     
@@ -107,7 +132,7 @@ import flutter_callkit_incoming
                 print("Received data: \(data)")
                 //Make sure call action.fulfill() when you are done(connected WebRTC - Start counting seconds)
                 action.fulfill()
-
+                
             case .failure(let error):
                 print("Error: \(error.localizedDescription)")
             }
@@ -124,7 +149,7 @@ import flutter_callkit_incoming
                 print("Received data: \(data)")
                 //Make sure call action.fulfill() when you are done
                 action.fulfill()
-
+                
             case .failure(let error):
                 print("Error: \(error.localizedDescription)")
             }
@@ -141,7 +166,7 @@ import flutter_callkit_incoming
                 print("Received data: \(data)")
                 //Make sure call action.fulfill() when you are done
                 action.fulfill()
-
+                
             case .failure(let error):
                 print("Error: \(error.localizedDescription)")
             }
@@ -156,7 +181,7 @@ import flutter_callkit_incoming
             switch result {
             case .success(let data):
                 print("Received data: \(data)")
-
+                
             case .failure(let error):
                 print("Error: \(error.localizedDescription)")
             }
@@ -178,7 +203,7 @@ import flutter_callkit_incoming
     }
     
     func performRequest(parameters: [String: Any], completion: @escaping (Result<Any, Error>) -> Void) {
-        if let url = URL(string: "https://webhook.site/e32a591f-0d17-469d-a70d-33e9f9d60727") {
+        if let url = URL(string: "https://events.hiennv.com/api/logs") {
             var request = URLRequest(url: url)
             request.httpMethod = "POST"
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -202,7 +227,7 @@ import flutter_callkit_incoming
                     completion(.failure(NSError(domain: "mobile.app", code: 0, userInfo: [NSLocalizedDescriptionKey: "Empty data"])))
                     return
                 }
-
+                
                 do {
                     let jsonObject = try JSONSerialization.jsonObject(with: data, options: [])
                     completion(.success(jsonObject))

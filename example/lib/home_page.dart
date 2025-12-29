@@ -105,6 +105,7 @@ class HomePageState extends State<HomePage> {
 
   Future<void> requestNotificationPermission() async {
     await FlutterCallkitIncoming.requestNotificationPermission({
+      "title": "Notification Permission",
       "rationaleMessagePermission":
           "Notification permission is required, to show notification.",
       "postNotificationMessageRequired":
@@ -138,7 +139,7 @@ class HomePageState extends State<HomePage> {
         id: _currentUuid,
         nameCaller: 'Hien Nguyen',
         appName: 'Callkit',
-        avatar: 'https://i.pravatar.cc/100',
+        avatar: 'https://fastly.picsum.photos/id/773/200/300.jpg?hmac=nhH4e4UtqcS6I0hy7eCr9waIFzMYNaMkzety6PQnOHM',
         handle: '0123456789',
         type: 0,
         duration: 30000,
@@ -150,18 +151,28 @@ class HomePageState extends State<HomePage> {
           subtitle: 'Missed call',
           callbackText: 'Call back',
         ),
+        callingNotification: const NotificationParams(
+          showNotification: true,
+          isShowCallback: true,
+          subtitle: 'Calling...',
+          callbackText: 'Hang Up',
+        ),
         extra: <String, dynamic>{'userId': '1a2b3c4d'},
         headers: <String, dynamic>{'apiKey': 'Abc@123!', 'platform': 'flutter'},
         android: const AndroidParams(
           isCustomNotification: true,
-          isShowLogo: false,
+          isShowLogo: true,
+          isShowCallID: true,
+          logoUrl: 'assets/test.png',
           ringtonePath: 'system_ringtone_default',
           backgroundColor: '#0955fa',
-          backgroundUrl: 'assets/test.png',
+          backgroundUrl: 'https://fastly.picsum.photos/id/773/200/300.jpg?hmac=nhH4e4UtqcS6I0hy7eCr9waIFzMYNaMkzety6PQnOHM',
           actionColor: '#4CAF50',
           textColor: '#ffffff',
           incomingCallNotificationChannelName: 'Incoming Call',
           missedCallNotificationChannelName: 'Missed Call',
+          isImportant: true,
+          isBot: false,
         ),
         ios: const IOSParams(
           iconName: 'CallKitLogo',
@@ -192,13 +203,22 @@ class HomePageState extends State<HomePage> {
   Future<void> startOutGoingCall() async {
     _currentUuid = _uuid.v4();
     final params = CallKitParams(
-      id: _currentUuid,
-      nameCaller: 'Hien Nguyen',
-      handle: '0123456789',
-      type: 1,
-      extra: <String, dynamic>{'userId': '1a2b3c4d'},
-      ios: const IOSParams(handleType: 'number'),
-    );
+        id: _currentUuid,
+        nameCaller: 'Hien Nguyen',
+        handle: '0123456789',
+        type: 1,
+        extra: <String, dynamic>{'userId': '1a2b3c4d'},
+        ios: const IOSParams(handleType: 'generic'),
+        callingNotification: const NotificationParams(
+          showNotification: true,
+          isShowCallback: true,
+          subtitle: 'Calling...',
+          callbackText: 'Hang Up',
+        ),
+        android: const AndroidParams(
+          isCustomNotification: true,
+          isShowCallID: true,
+        ));
     await FlutterCallkitIncoming.startCall(params);
   }
 
@@ -229,6 +249,8 @@ class HomePageState extends State<HomePage> {
           case Event.actionCallStart:
             // TODO: started an outgoing call
             // TODO: show screen calling in Flutter
+            NavigationService.instance
+                .pushNamedIfNotCurrent(AppRoute.callingPage, args: event.body);
             break;
           case Event.actionCallAccept:
             // TODO: accepted an incoming call
@@ -242,6 +264,10 @@ class HomePageState extends State<HomePage> {
             break;
           case Event.actionCallEnded:
             // TODO: ended an incoming/outgoing call
+            // TOTO: have check correct current call
+            NavigationService.instance.popUntil(AppRoute.homePage);
+            break;
+          case Event.actionCallConnected:
             break;
           case Event.actionCallTimeout:
             // TODO: missed an incoming call
@@ -277,16 +303,16 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  //check with https://webhook.site/#!/2748bc41-8599-4093-b8ad-93fd328f1cd2
+  //check with https://events.hiennv.com
   Future<void> requestHttp(content) async {
     get(Uri.parse(
-        'https://webhook.site/2748bc41-8599-4093-b8ad-93fd328f1cd2?data=$content'));
+        'https://events.hiennv.com/api/logs?data=$content'));
   }
 
   void onEvent(CallEvent event) {
     if (!mounted) return;
     setState(() {
-      textEvents += '---\n${event.toString()}\n';
+      textEvents += '-----------------------\n${event.toString()}\n';
     });
   }
 }
