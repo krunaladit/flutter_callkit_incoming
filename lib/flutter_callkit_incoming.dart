@@ -128,6 +128,12 @@ class FlutterCallkitIncoming {
     return await _channel.invokeMethod("getDevicePushTokenVoIP");
   }
 
+  /// Returns whether the server v4 accept path was executed (iOS only; Android always false).
+  static Future<bool> getIsServerV4Executed() async {
+    return (await _channel.invokeMethod("getIsServerV4Executed")) as bool? ??
+        false;
+  }
+
   /// Silence CallKit events
   static Future silenceEvents() async {
     return await _channel.invokeMethod("silenceEvents", true);

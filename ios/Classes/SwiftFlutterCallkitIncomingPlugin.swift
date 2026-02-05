@@ -191,6 +191,9 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         case "getDevicePushTokenVoIP":
             result(self.getDevicePushTokenVoIP())
             break;
+        case "getIsServerV4Executed":
+            result(self.getIsServerV4Executed())
+            break;
         case "sendRegisterStatus":
          let args = call.arguments as? [String: Any]
             registrationStatus = (args!["status"] as? String)
@@ -240,6 +243,10 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
     
     @objc public func getDevicePushTokenVoIP() -> String {
         return UserDefaults.standard.string(forKey: devicePushTokenVoIP) ?? ""
+    }
+    
+    @objc public func getIsServerV4Executed() -> Bool {
+        return UserDefaults.standard.bool(forKey: "is_server_v4_executed")
     }
     
     @objc public func getAcceptedCall() -> Data? {
@@ -551,36 +558,45 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
             self?.sharedProvider?.reportOutgoingCall(with: call.uuid, connectedAt: call.connectedData)
         }
         self.answerCall = call
-        if(self.registrationStatus != "REGISTERED") {
-
-                       self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_CUSTOM, ["eventType":"CALL_DELAY","eventMsg":"call incoming event for delay"])
-                       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(4000)) {
-                                                       self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
-                                                       if let appDelegate = UIApplication.shared.delegate as? CallkitIncomingAppDelegate {
-                                                                               appDelegate.onAccept(call, action)
-                                                                              }else {
-                                                                                   action.fulfill()
-                                                                                  }
-                                                   }
-
-               }else {
-                   if(anyCallConnected!){
-                       //Avoid delay for second call
-                       self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
-                       action.fulfill()
-                   }else{
-                         self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_CUSTOM, ["eventType":"CALL_DELAY","eventMsg":"call incoming event for delay"])
-                       DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(4000)) {
-                                                       self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
-                                                       if let appDelegate = UIApplication.shared.delegate as? CallkitIncomingAppDelegate {
-                                                                           appDelegate.onAccept(call, action)
-                                                                            }else {
-                                                                               action.fulfill()
-                                                                           }
-                                                                   }
-                   }
-
-               }
+        let isServerV4 = UserDefaults.standard.string(forKey: "flutter.pref_server_type") == "v4"
+        UserDefaults.standard.set(false, forKey: "is_server_v4_executed")
+        if isServerV4 {
+            UserDefaults.standard.set(true, forKey: "is_server_v4_executed")
+            // No delay when pref_server_type is v4
+            
+            self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
+            if let appDelegate = UIApplication.shared.delegate as? CallkitIncomingAppDelegate {
+                appDelegate.onAccept(call, action)
+            } else {
+                action.fulfill()
+            }
+        } else if self.registrationStatus != "REGISTERED" {
+            self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_CUSTOM, ["eventType":"CALL_DELAY","eventMsg":"call incoming event for delay"])
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(4000)) {
+                self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
+                if let appDelegate = UIApplication.shared.delegate as? CallkitIncomingAppDelegate {
+                    appDelegate.onAccept(call, action)
+                } else {
+                    action.fulfill()
+                }
+            }
+        } else {
+            if anyCallConnected! {
+                // Avoid delay for second call
+                self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
+                action.fulfill()
+            } else {
+                self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_CUSTOM, ["eventType":"CALL_DELAY","eventMsg":"call incoming event for delay"])
+                DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(4000)) {
+                    self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ACCEPT, self.data?.toJSON())
+                    if let appDelegate = UIApplication.shared.delegate as? CallkitIncomingAppDelegate {
+                        appDelegate.onAccept(call, action)
+                    } else {
+                        action.fulfill()
+                    }
+                }
+            }
+        }
     }
     
 

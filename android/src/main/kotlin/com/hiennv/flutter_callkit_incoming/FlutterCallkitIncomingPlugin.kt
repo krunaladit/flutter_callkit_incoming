@@ -261,6 +261,10 @@ class FlutterCallkitIncomingPlugin : FlutterPlugin, MethodCallHandler, ActivityA
                     result.success("")
                 }
 
+                "getIsServerV4Executed" -> {
+                    result.success(false)
+                }
+
                 "silenceEvents" -> {
                     val silence = call.arguments as? Boolean ?: false
                     CallkitIncomingBroadcastReceiver.silenceEvents = silence
