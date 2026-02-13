@@ -701,6 +701,19 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
             appDelegate.didActivateAudioSession(audioSession)
         }
 
+        // Reset hold/mute state: if CallKit is reactivating the audio session,
+        // the call is no longer on hold (e.g. returning from a carrier call).
+        // CallKit does not always send CXSetHeldCallAction(isOnHold: false)
+        // after a carrier call ends, leaving isOnHold stuck at true.
+        if self.answerCall?.isOnHold ?? false {
+            self.answerCall?.isOnHold = false
+            self.answerCall?.isMuted = false
+        }
+        if self.outgoingCall?.isOnHold ?? false {
+            self.outgoingCall?.isOnHold = false
+            self.outgoingCall?.isMuted = false
+        }
+
         let isAlreadyConnected = (self.answerCall?.hasConnected ?? false) || (self.outgoingCall?.hasConnected ?? false)
 
         if !isAlreadyConnected {
