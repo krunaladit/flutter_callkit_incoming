@@ -480,6 +480,15 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         }
     }
     
+    func deactivateAudioSession(){
+        let session = AVAudioSession.sharedInstance()
+        do{
+            try session.setActive(false, options: .notifyOthersOnDeactivation)
+        }catch{
+            print("Error deactivating audio session: \(error)")
+        }
+    }
+
     func getAudioSessionMode(_ audioSessionMode: String?) -> AVAudioSession.Mode {
         var mode = AVAudioSession.Mode.default
         switch audioSessionMode {
@@ -692,25 +701,22 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
             appDelegate.didActivateAudioSession(audioSession)
         }
 
-        if(self.answerCall?.hasConnected ?? false){
-            sendDefaultAudioInterruptionNofificationToStartAudioResource()
-            return
-        }
-        if(self.outgoingCall?.hasConnected ?? false){
-            sendDefaultAudioInterruptionNofificationToStartAudioResource()
-            return
-        }
-        self.outgoingCall?.startCall(withAudioSession: audioSession) {success in
-            if success {
-                self.callManager.addCall(self.outgoingCall!)
-                self.outgoingCall?.startAudio()
+        let isAlreadyConnected = (self.answerCall?.hasConnected ?? false) || (self.outgoingCall?.hasConnected ?? false)
+
+        if !isAlreadyConnected {
+            self.outgoingCall?.startCall(withAudioSession: audioSession) {success in
+                if success {
+                    self.callManager.addCall(self.outgoingCall!)
+                    self.outgoingCall?.startAudio()
+                }
+            }
+            self.answerCall?.ansCall(withAudioSession: audioSession) { success in
+                if success{
+                    self.answerCall?.startAudio()
+                }
             }
         }
-        self.answerCall?.ansCall(withAudioSession: audioSession) { success in
-            if success{
-                self.answerCall?.startAudio()
-            }
-        }
+
         sendDefaultAudioInterruptionNofificationToStartAudioResource()
         configurAudioSession()
 
@@ -731,11 +737,12 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
         if(self.outgoingCall != nil){
             self.outgoingCall = nil
         }
-      //  self.answerCall?.endCall()
+        self.answerCall?.endCall()
         if(self.answerCall != nil){
-           // self.answerCall = nil
+            self.answerCall = nil
         }
-       // self.callManager.removeAllCalls()
+        self.callManager.removeAllCalls()
+        self.deactivateAudioSession()
 
         self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_TOGGLE_AUDIO_SESSION, [ "isActivate": false ])
     }
