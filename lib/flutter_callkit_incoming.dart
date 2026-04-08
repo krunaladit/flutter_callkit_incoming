@@ -87,8 +87,16 @@ class FlutterCallkitIncoming {
   /// End an Incoming/Outgoing call.
   /// On iOS, using Callkit(update a history into the Phone app).
   /// On Android, Nothing(only callback event listener).
-  static Future endCall(String id) async {
-    await _channel.invokeMethod("endCall", {'id': id});
+  ///
+  /// [endCallReason] optional reason for ending the call (iOS only):
+  ///   1 = failed, 2 = remoteEnded, 3 = unanswered,
+  ///   4 = answeredElsewhere, 5 = declinedElsewhere
+  static Future endCall(String id, {int? endCallReason}) async {
+    final args = <String, dynamic>{'id': id};
+    if (endCallReason != null) {
+      args['endCallReason'] = endCallReason;
+    }
+    await _channel.invokeMethod("endCall", args);
   }
 
   /// Set call has been connected successfully.
