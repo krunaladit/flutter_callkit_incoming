@@ -118,25 +118,16 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
             result("OK")
             break
         case "endCall":
-            guard let args = call.arguments else {
+            guard let getArgs = call.arguments as? [String: Any] else {
                 result("OK")
                 return
             }
-            if(self.isFromPushKit){
-                if let getArgs = args as? [String: Any],
-                   let reason = getArgs["endCallReason"] as? Int {
-                    self.saveEndCall(self.data!.uuid, reason)
-                }
-                self.endCall(self.data!)
-            }else{
-                if let getArgs = args as? [String: Any] {
-                    self.data = Data(args: getArgs)
-                    if let reason = getArgs["endCallReason"] as? Int {
-                        self.saveEndCall(self.data!.uuid, reason)
-                    }
-                    self.endCall(self.data!)
-                }
+            let endData = Data(args: getArgs)
+            if let reason = getArgs["endCallReason"] as? Int {
+                self.saveEndCall(endData.uuid, reason)
             }
+            self.endCall(endData)
+            self.isFromPushKit = false
             result("OK")
             break
         case "muteCall":
@@ -174,18 +165,13 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
             result("OK")
             break
         case "callConnected":
-            guard let args = call.arguments else {
+            guard let getArgs = call.arguments as? [String: Any] else {
                 result("OK")
                 return
             }
-            if(self.isFromPushKit){
-                self.connectedCall(self.data!)
-            }else{
-                if let getArgs = args as? [String: Any] {
-                    self.data = Data(args: getArgs)
-                    self.connectedCall(self.data!)
-                }
-            }
+            let connectData = Data(args: getArgs)
+            self.connectedCall(connectData)
+            self.isFromPushKit = false
             result("OK")
             break
         case "activeCalls":
@@ -334,26 +320,20 @@ public class SwiftFlutterCallkitIncomingPlugin: NSObject, FlutterPlugin, CXProvi
     }
     
     @objc public func endCall(_ data: Data) {
-        var call: Call? = nil
-        if(self.isFromPushKit){
-            call = Call(uuid: UUID(uuidString: self.data!.uuid)!, data: data)
+        let call = Call(uuid: UUID(uuidString: data.uuid)!, data: data)
+        if self.isFromPushKit {
             self.isFromPushKit = false
             self.sendEvent(SwiftFlutterCallkitIncomingPlugin.ACTION_CALL_ENDED, data.toJSON())
-        }else {
-            call = Call(uuid: UUID(uuidString: data.uuid)!, data: data)
         }
-        self.callManager.endCall(call: call!)
+        self.callManager.endCall(call: call)
     }
     
     @objc public func connectedCall(_ data: Data) {
-        var call: Call? = nil
-        if(self.isFromPushKit){
-            call = Call(uuid: UUID(uuidString: self.data!.uuid)!, data: data)
+        let call = Call(uuid: UUID(uuidString: data.uuid)!, data: data)
+        if self.isFromPushKit {
             self.isFromPushKit = false
-        }else {
-            call = Call(uuid: UUID(uuidString: data.uuid)!, data: data)
         }
-        self.callManager.connectedCall(call: call!)
+        self.callManager.connectedCall(call: call)
     }
 
     @objc public func activeCalls() -> [[String: Any]] {
